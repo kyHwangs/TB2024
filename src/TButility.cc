@@ -10,8 +10,6 @@ void TButility::LoadMapping(const std::string &path)
   int mid = 0;
 	int ch = 0;
 	TString* name = nullptr;
-	int cases = 0;
-	int isCeren = 0;
 	int row = 0;
 	int column = 0;
 
@@ -39,8 +37,6 @@ void TButility::LoadMapping(const std::string &path)
   mapChain_DQM->Add((TString)path);
 
   mapChain_DQM->SetBranchAddress("name", &name);
-  mapChain_DQM->SetBranchAddress("cases", &cases);
-  mapChain_DQM->SetBranchAddress("isCeren", &isCeren);
   mapChain_DQM->SetBranchAddress("row", &row);
   mapChain_DQM->SetBranchAddress("column", &column);
 
@@ -50,8 +46,8 @@ void TButility::LoadMapping(const std::string &path)
     if (*name == "null")
       continue;
 
-    mapping_NAME_INFO.insert(std::make_pair(*name, mod_info(cases, isCeren, row, column)));
-    mapping_CID_INFO.insert(std::make_pair(GetCID(*name), mod_info(cases, isCeren, row, column)));
+    mapping_NAME_INFO.insert(std::make_pair(*name, mod_info(row, column)));
+    mapping_CID_INFO.insert(std::make_pair(GetCID(*name), mod_info(row, column)));
   }
 
   delete mapChain_DAQ;
@@ -69,14 +65,14 @@ std::string TButility::GetName(TBcid cid) const {
 }
 
 TButility::mod_info TButility::GetInfo(TBcid cid) const {
-  if (mapping_CID_INFO.find(cid) == mapping_CID_INFO.end()) return mod_info(-1, -1, -1, -1);
+  if (mapping_CID_INFO.find(cid) == mapping_CID_INFO.end()) return mod_info(-1, -1);
   else return mapping_CID_INFO.at(cid);
 }
 
 TButility::mod_info TButility::GetInfo(TString name) const {
   TBcid aCID = GetCID(name);
   if (aCID == TBcid(-1, -1))
-    return mod_info(-1, -1, -1, -1);
+    return mod_info(-1, -1);
 
   return GetInfo(aCID);
 }

@@ -43,10 +43,16 @@ TBmonit<T>::TBmonit(ObjectCollection* fObj_)
 {
   const YAML::Node fConfig_YAML = fConfig.GetConfig();
 
-  fBaseDir = fConfig_YAML["BaseDirectory"].as<std::string>();
-  fMapping = fConfig_YAML["Mapping"].as<std::string>();
+  std::string str_version = "";
+  fObj->GetVariable("version", &str_version);
 
-  fUtility = TButility(fMapping);
+  std::string maaping_path = "../mapping/mapping_TB2024_v1.root/";
+  if (str_version == "2") maaping_path = "../mapping/mapping_TB2024_v2.root/";
+
+  fBaseDir = fConfig_YAML["BaseDirectory"].as<std::string>();
+  // fMapping = fConfig_YAML["Mapping"].as<std::string>();
+
+  fUtility = TButility(maaping_path);
 
   // fCaseName = fNodePlot["Name"].as<std::string>()
 
@@ -141,12 +147,12 @@ void TBmonit<T>::LoopLive() {
   }
 
   if (aCase == "heatmap") {
-    std::string aModules = "";
-    fObj->GetVariable("module", &aModules);
-    if (aModules == "null") {
+    std::vector<std::string> aModules = {};
+    fObj->GetVector("module", &aModules);
+    if (aModules.size() != 1) {
       // !throw exception
     } else {
-      fPlotter.SetModule(aModules);
+      fPlotter.SetModule(aModules.at(0));
     }
   }
 
@@ -235,12 +241,12 @@ void TBmonit<T>::LoopAfterRun() {
   }
 
   if (aCase == "heatmap") {
-    std::string aModules = "";
-    fObj->GetVariable("module", &aModules);
-    if (aModules == "null") {
+    std::vector<std::string> aModules = {};
+    fObj->GetVector("module", &aModules);
+    if (aModules.size() != 1) {
       // !throw exception
     } else {
-      fPlotter.SetModule(aModules);
+      fPlotter.SetModule(aModules.at(0));
     }
   }
 

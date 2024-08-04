@@ -23,13 +23,11 @@ public:
   ~TButility() {}
 
   struct mod_info {
-    int cases;
-    int isCeren;
     int row;
     int col;
 
-    mod_info(int cases_, int isCeren_, int row_, int col_)
-    : cases(cases_), isCeren(isCeren_), row(row_), col(col_)
+    mod_info(int row_, int col_)
+    : row(row_), col(col_)
     {}
   };
 
