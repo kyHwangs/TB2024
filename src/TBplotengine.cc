@@ -38,7 +38,7 @@ void TBplotengine::init() {
           fPlotter_Ceren.at(i).SetPlot(new TH1D((TString)(aName), ";IntADC;nEvents", 220, -3000., 30000.));
 
         if (fCalcInfo == TBplotengine::CalcInfo::kPeakADC)
-          fPlotter_Ceren.at(i).SetPlot(new TH1D((TString)(aName), ";IntADC;nEvents", 288, -512., 4096.));
+          fPlotter_Ceren.at(i).SetPlot(new TH1D((TString)(aName), ";PeakADC;nEvents", 288, -512., 4096.));
 
         fPlotter_Ceren.at(i).hist1D->SetLineColor(
           gStyle->GetColorPalette((float)(i + 1) * ((float)gStyle->GetNumberOfColors() / ((float)fCIDtoPlot_Ceren.size() + 1)))
@@ -150,18 +150,18 @@ void TBplotengine::init_2D() {
   }
 
   if (fModule == "moduleV1") {
-    f2DHistCeren = new TH2D("Left", "Left;;", 3, 0.5, 3.5, 5, 0.5, 5.5);
+    f2DHistCeren = new TH2D("Left", "Left;;", 5, 0.5, 5.5, 3, 0.5, 3.5);
     f2DHistCeren->SetStats(0);
 
-    f2DHistScint = new TH2D("Right", "Right;;", 3, 0.5, 3.5, 5, 0.5, 5.5);
+    f2DHistScint = new TH2D("Right", "Right;;", 5, 0.5, 5.5, 3, 0.5, 3.5);
     f2DHistScint->SetStats(0);
 
-    for (int i = 1; i <= 3; i++) {
+    for (int i = 1; i <= 5; i++) {
       f2DHistCeren->GetXaxis()->SetBinLabel(i, std::to_string(i).c_str());
       f2DHistScint->GetXaxis()->SetBinLabel(i, std::to_string(i).c_str());
     }
 
-    for (int i = 1; i <= 5; i++) {
+    for (int i = 1; i <= 3; i++) {
       f2DHistCeren->GetYaxis()->SetBinLabel(i, std::to_string(i).c_str());
       f2DHistScint->GetYaxis()->SetBinLabel(i, std::to_string(i).c_str());
     }
