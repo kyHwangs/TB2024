@@ -84,30 +84,30 @@ bool ObjectCollection::Help() {
     std::cout << ANSI.BOLD << "------------------------------------------------------" << ANSI.END << std::endl;
 
     std::cout << ANSI.BOLD + ANSI.YELLOW + "  --RunNumber" + ANSI.END << " : which run want to draw" << std::endl;
-    std::cout << "    eg) ./monit --RunNumber 9119"<< std::endl;
+    std::cout << "    eg) ./monit --version 1 --RunNumber 9119"<< std::endl;
     std::cout << ANSI.BOLD << "------------------------------------------------------" << ANSI.END << std::endl;
 
     std::cout << ANSI.BOLD + ANSI.YELLOW + "  --type" + ANSI.END << " : what we want to draw" << std::endl;
     std::cout << ANSI.BOLD + "    allowed type: " + ANSI.YELLOW + "'single', 'heatmap'" + ANSI.END << std::endl;
-    std::cout << "    eg) ./monit --RunNumber 9119 --type single"<< std::endl;
+    std::cout << "    eg) ./monit --version 1 --RunNumber 9119 --type single"<< std::endl;
     std::cout << ANSI.BOLD << "------------------------------------------------------" << ANSI.END << std::endl;
 
     std::cout << ANSI.BOLD + ANSI.YELLOW + "  --method" + ANSI.END << " : which method for calculating ADC" << std::endl;
     std::cout << ANSI.BOLD + "    allowed method: " + ANSI.END << std::endl;
     std::cout << ANSI.BOLD + "      --type single: " + ANSI.YELLOW + "'IntADC', 'PeakADC', 'Avg', 'Overlay'" + ANSI.END << std::endl;
     std::cout << ANSI.BOLD + "      --type heatmap: " + ANSI.YELLOW + "'IntADC', 'PeakADC'" + ANSI.END << std::endl;
-    std::cout << "    eg) ./monit --RunNumber 9119 --type single --method IntADC" << std::endl;
+    std::cout << "    eg) ./monit --version 1 --RunNumber 9119 --type single --method IntADC" << std::endl;
     std::cout << ANSI.BOLD << "------------------------------------------------------" << ANSI.END << std::endl;
 
     std::cout << ANSI.BOLD + ANSI.YELLOW + "  Mandatory options for '--method single'" + ANSI.END << std::endl;
     std::cout << ANSI.BOLD + "    --module " + ANSI.YELLOW + "module name ..." + ANSI.END << std::endl;
-    std::cout << "    eg) ./monit --RunNumber 9119 --type single --method IntADC --module L1 R5" << std::endl;
+    std::cout << "    eg) ./monit --version 1 --RunNumber 9119 --type single --method IntADC --module L1 R5" << std::endl;
     std::cout << ANSI.BOLD << "------------------------------------------------------" << ANSI.END << std::endl;
 
-    std::cout << ANSI.BOLD + ANSI.YELLOW + "  Mandatory options for '--method heatmap'" + ANSI.END << std::endl;
-    std::cout << ANSI.BOLD + "    --module " + ANSI.YELLOW + "'moduleV1', 'moduleV2' (V1: 3 by 5, V2: 4 by 4)" + ANSI.END << std::endl;
-    std::cout << "    eg) ./monit --RunNumber 9119 --type heatmap --method IntADC --module moduleV1" << std::endl;
-    std::cout << ANSI.BOLD << "------------------------------------------------------" << ANSI.END << std::endl;
+    // std::cout << ANSI.BOLD + ANSI.YELLOW + "  Mandatory options for '--method heatmap'" + ANSI.END << std::endl;
+    // std::cout << ANSI.BOLD + "    --module " + ANSI.YELLOW + "'moduleV1', 'moduleV2' (V1: 3 by 5, V2: 4 by 4)" + ANSI.END << std::endl;
+    // std::cout << "    eg) ./monit --RunNumber 9119 --type heatmap --method IntADC --module moduleV1" << std::endl;
+    // std::cout << ANSI.BOLD << "------------------------------------------------------" << ANSI.END << std::endl;
 
     // std::cout << ANSI.BOLD + ANSI.YELLOW + "  if want to draw AUX info '--AUX'" + ANSI.END << std::endl;
     // std::cout << "    eg) ./monit --RunNumver 9119 --type heatmap --method IntADC --module module --AUX" << std::endl;
