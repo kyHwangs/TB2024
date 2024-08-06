@@ -241,12 +241,12 @@ void TBmonit<T>::LoopAfterRun() {
   }
 
   if (aCase == "heatmap") {
-    std::vector<std::string> aModules = {};
-    fObj->GetVector("module", &aModules);
-    if (aModules.size() != 1) {
+    std::string str_version = "";
+    fObj->GetVariable("version", &str_version);
+    if (str_version != "1" && str_version != "2") {
       // !throw exception
     } else {
-      fPlotter.SetModule(aModules.at(0));
+      fPlotter.SetModule(str_version);
     }
   }
 

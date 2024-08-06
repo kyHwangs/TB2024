@@ -6,7 +6,7 @@ ObjectCollection::ObjectCollection(int argc, char* argv[])
 {
   for (int i = 1; i < fArgc; i++) {
     fArgv.push_back(std::string(argv[i]));
-    std::cout << "Print " << i - 1 << " " << fArgv.at(i - 1) << std::endl;
+    // std::cout << "Print " << i - 1 << " " << fArgv.at(i - 1) << std::endl;
   }
 
   init();
@@ -54,6 +54,11 @@ ObjectCollection::ObjectCollection(int argc, char* argv[])
     if (fArgv[i] == "--version") {
       i++;
       AddVariable("version", fArgv[i]);
+    }
+
+    if (fArgv[i] == "--verbose") {
+      i++;
+      AddVariable("verbose", true);
     }
 
     // if (fArgv[i] == "--AUX")

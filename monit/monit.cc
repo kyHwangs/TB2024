@@ -9,14 +9,13 @@ int main(int argc, char* argv[]) {
   if (obj->Help())
     return 1;
 
-  obj->Print();
+  bool isVerbose;
+  obj->GetVariable("verbose", &isVerbose);
+  if (isVerbose)
+    obj->Print();
 
   TBmonit<TBwaveform>* monit = new TBmonit<TBwaveform>(std::move(obj));
   monit->Loop();
-
-
-
-
 
   return 1;
 }

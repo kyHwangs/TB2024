@@ -85,6 +85,12 @@ void TBplotengine::init() {
     fCanvas = new TCanvas("", "", 1900, 1000);
     fCanvas->Divide(2, 1);
 
+    auto tPadLeft = fCanvas->cd(1);
+    tPadLeft->SetRightMargin(0.13);
+
+    auto tPadRight = fCanvas->cd(2);
+    tPadRight->SetRightMargin(0.13);
+
     init_2D();
   }
 
@@ -102,13 +108,10 @@ void TBplotengine::init() {
 }
 
 void TBplotengine::init_2D() {
-  std::cout << "init_2D" << std::endl;
-
-  std::cout << fModule << std::endl;
 
   int nModule = 15;
-  if (fModule == "moduleV1") nModule = 15;
-  if (fModule == "moduleV2") nModule = 16;
+  if (fModule == "1") nModule = 15;
+  if (fModule == "2") nModule = 16;
 
   for (int i = 1; i <= nModule; i++) {
 
@@ -116,7 +119,7 @@ void TBplotengine::init_2D() {
     TBcid aLCID = fUtility.GetCID(aLName);
     TButility::mod_info aLInfo = fUtility.GetInfo(aLCID);
 
-    std::cout << i << " " << aLName << " " << aLInfo.row << " " << aLInfo.col << std::endl;
+    // std::cout << i << " " << aLName << " " << aLInfo.row << " " << aLInfo.col << std::endl;
 
     fCIDtoPlot_Ceren.push_back(aLCID);
 
@@ -134,7 +137,7 @@ void TBplotengine::init_2D() {
     TBcid aRCID = fUtility.GetCID(aRName);
     TButility::mod_info aRInfo = fUtility.GetInfo(aRCID);
 
-    std::cout << i << " " << aRName << " " << aRInfo.row << " " << aRInfo.col << std::endl;
+    // std::cout << i << " " << aRName << " " << aRInfo.row << " " << aRInfo.col << std::endl;
 
     fCIDtoPlot_Scint.push_back(aRCID);
 
@@ -149,7 +152,7 @@ void TBplotengine::init_2D() {
 
   }
 
-  if (fModule == "moduleV1") {
+  if (fModule == "1") {
     f2DHistCeren = new TH2D("Left", "Left;;", 5, 0.5, 5.5, 3, 0.5, 3.5);
     f2DHistCeren->SetStats(0);
 
@@ -183,17 +186,17 @@ void TBplotengine::init_2D() {
     }
   }
 
-  std::cout << fCIDtoPlot_Ceren.size() << std::endl;
-  for (int i = 0; i < fPlotter_Ceren.size(); i++) {
-    std::cout << i << " " << fPlotter_Ceren.at(i).name << " " << fPlotter_Ceren.at(i).info.row << " " << fPlotter_Ceren.at(i).info.col << " ";
-    fPlotter_Ceren.at(i).cid.print();
-  }
+  // std::cout << fCIDtoPlot_Ceren.size() << std::endl;
+  // for (int i = 0; i < fPlotter_Ceren.size(); i++) {
+  //   std::cout << i << " " << fPlotter_Ceren.at(i).name << " " << fPlotter_Ceren.at(i).info.row << " " << fPlotter_Ceren.at(i).info.col << " ";
+  //   fPlotter_Ceren.at(i).cid.print();
+  // }
 
-  std::cout << fCIDtoPlot_Scint.size() << std::endl;
-  for (int i = 0; i < fPlotter_Scint.size(); i++) {
-    std::cout << i << " " << fPlotter_Scint.at(i).name << " " << fPlotter_Scint.at(i).info.row << " " << fPlotter_Scint.at(i).info.col << " ";
-    fPlotter_Scint.at(i).cid.print();
-  }
+  // std::cout << fCIDtoPlot_Scint.size() << std::endl;
+  // for (int i = 0; i < fPlotter_Scint.size(); i++) {
+  //   std::cout << i << " " << fPlotter_Scint.at(i).name << " " << fPlotter_Scint.at(i).info.row << " " << fPlotter_Scint.at(i).info.col << " ";
+  //   fPlotter_Scint.at(i).cid.print();
+  // }
 
   Draw();
 }
@@ -344,12 +347,12 @@ void TBplotengine::Update() {
 
     for (int i = 0; i < fPlotter_Ceren.size(); i++) {
       f2DHistCeren->SetBinContent(fPlotter_Ceren.at(i).info.row, fPlotter_Ceren.at(i).info.col, fPlotter_Ceren.at(i).hist1D->GetMean());
-      std::cout << fPlotter_Ceren.at(i).name << " " << fPlotter_Ceren.at(i).info.row << " " << fPlotter_Ceren.at(i).info.col << std::endl;
+      // std::cout << fPlotter_Ceren.at(i).name << " " << fPlotter_Ceren.at(i).info.row << " " << fPlotter_Ceren.at(i).info.col << std::endl;
     }
 
     for (int i = 0; i < fPlotter_Scint.size(); i++) {
       f2DHistScint->SetBinContent(fPlotter_Scint.at(i).info.row, fPlotter_Scint.at(i).info.col, fPlotter_Scint.at(i).hist1D->GetMean());
-      std::cout << fPlotter_Scint.at(i).name << " " << fPlotter_Scint.at(i).info.row << " " << fPlotter_Scint.at(i).info.col << std::endl;
+      // std::cout << fPlotter_Scint.at(i).name << " " << fPlotter_Scint.at(i).info.row << " " << fPlotter_Scint.at(i).info.col << std::endl;
     }
 
   }
