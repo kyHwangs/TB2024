@@ -135,6 +135,8 @@ private:
   std::string fCaseName;
   std::string fModule;
 
+  TH1D* fMainFrame;
+  
   TH2D* f2DHistCeren;
   TH2D* f2DHistScint;
 
