@@ -59,7 +59,7 @@ void TBplotengine::init() {
 
       } else if (fCalcInfo == TBplotengine::CalcInfo::kOverlay) {
         fPlotter_Ceren.push_back(TBplotengine::PlotInfo(aCID, aName, aInfo, 0, 0));
-        fPlotter_Ceren.at(i).SetPlot(new TH2D((TString)(aName), ";Bin;ADC", 1024, 0., 1024., 4096, 0., 4096.));
+        fPlotter_Ceren.at(i).SetPlot(new TH2D((TString)(aName), (TString)"Run " + std::to_string(fRunNum) + ";Bin;ADC", 1024, 0., 1024., 4096, 0., 4096.));
         fPlotter_Ceren.at(i).hist2D->SetStats(0);
 
       } else {
@@ -68,17 +68,17 @@ void TBplotengine::init() {
     }
 
     if (fCalcInfo == TBplotengine::CalcInfo::kAvgTimeStruc) {
-      fMainFrame = new TH1D("frame", ";Bin;ADC", 1000, 0.5, 1000.5);
+      fMainFrame = new TH1D("frame", (TString)"Run " + std::to_string(fRunNum) + ";Bin;ADC", 1000, 0.5, 1000.5);
       fMainFrame->SetStats(0);
     }
 
     if (fCalcInfo == TBplotengine::CalcInfo::kIntADC) {
-      fMainFrame = new TH1D("frame", ";IntADC;nEvents", 440, -30000., 300000.);
+      fMainFrame = new TH1D("frame", (TString)"Run " + std::to_string(fRunNum) + ";IntADC;nEvents", 440, -30000., 300000.);
       fMainFrame->SetStats(0);
     }
 
     if (fCalcInfo == TBplotengine::CalcInfo::kPeakADC) {
-      fMainFrame = new TH1D("frame", ";PeakADC;nEvents", 288, -512., 4096.);
+      fMainFrame = new TH1D("frame", (TString)"Run " + std::to_string(fRunNum) + ";PeakADC;nEvents", 288, -512., 4096.);
       fMainFrame->SetStats(0);
     }
 
@@ -158,6 +158,11 @@ void TBplotengine::init_single_module() {
 
       fPlotter_Scint.at(i - 1).hist1D->SetLineWidth(2);
       fPlotter_Scint.at(i - 1).hist1D->SetLineColor(kRed);
+
+      if (i == 1) {
+        fPlotter_Ceren.at(0).hist1D->SetTitle((TString)"Run " + std::to_string(fRunNum));
+        fPlotter_Scint.at(0).hist1D->SetTitle((TString)"Run " + std::to_string(fRunNum));
+      }
     }
   } else {
     for (int i = 1; i <= 9; i++) {
@@ -200,6 +205,11 @@ void TBplotengine::init_single_module() {
 
         fPlotter_Scint.at(i - 1).hist1D->SetLineWidth(2);
         fPlotter_Scint.at(i - 1).hist1D->SetLineColor(kRed);
+
+        if (i == 1) {
+          fPlotter_Ceren.at(0).hist1D->SetTitle((TString)"Run " + std::to_string(fRunNum));
+          fPlotter_Scint.at(0).hist1D->SetTitle((TString)"Run " + std::to_string(fRunNum));
+        }
       }
     }
   }
@@ -495,20 +505,21 @@ void TBplotengine::Update() {
       SetMaximum();
 
     fCanvas->cd();
-    if (fIsFirst) {
-      fIsFirst = false;
-      if (fCalcInfo == TBplotengine::CalcInfo::kOverlay) {
-        fCanvas->cd();
-        fPlotter_Ceren.at(0).hist2D->Draw("colz");
 
-      } else {
-        fCanvas->cd();
-        fMainFrame->Draw();
+    if (fCalcInfo == TBplotengine::CalcInfo::kOverlay) {
+      fCanvas->cd();
+      fPlotter_Ceren.at(0).hist2D->Draw("colz");
 
-        double stat_height = (1. - 0.2) / (double)fPlotter_Ceren.size();
-        for (int i = 0; i < fPlotter_Ceren.size(); i++) {
-          fCanvas->cd();
-          fPlotter_Ceren.at(i).hist1D->Draw("Hist & sames");
+    } else {
+      fCanvas->cd();
+      fMainFrame->Draw();
+
+      double stat_height = (1. - 0.2) / (double)fPlotter_Ceren.size();
+      for (int i = 0; i < fPlotter_Ceren.size(); i++) {
+        fCanvas->cd();
+        fPlotter_Ceren.at(i).hist1D->Draw("Hist & sames");
+
+        if (fIsFirst) {
 
           if (fCalcInfo == TBplotengine::CalcInfo::kIntADC || fCalcInfo == TBplotengine::CalcInfo::kPeakADC) {
             fCanvas->Update();
@@ -521,16 +532,16 @@ void TBplotengine::Update() {
             stat->SaveStyle();
           }
         }
-
-        if (fCalcInfo == TBplotengine::CalcInfo::kAvgTimeStruc) {
-          fCanvas->cd();
-          fLeg->Draw("same");
-        }
+      }
+      if (fIsFirst) fIsFirst = false;
+      if (fCalcInfo == TBplotengine::CalcInfo::kAvgTimeStruc) {
+        fCanvas->cd();
+        fLeg->Draw("same");
       }
     }
   } else if (fCaseName == "heatmap") {
 
-    f2DHistCeren->SetTitle((TString)"CERENKOV - " + std::to_string((int)fPlotter_Ceren.at(0).hist1D->GetEntries()));
+    f2DHistCeren->SetTitle((TString)"Run " + std::to_string(fRunNum) + " CERENKOV - " + std::to_string((int)fPlotter_Ceren.at(0).hist1D->GetEntries()));
     for (int i = 0; i < fPlotter_Ceren.size(); i++) {
       f2DHistCeren->SetBinContent(fPlotter_Ceren.at(i).info.row, fPlotter_Ceren.at(i).info.col, (int)fPlotter_Ceren.at(i).hist1D->GetMean());
 
@@ -542,7 +553,7 @@ void TBplotengine::Update() {
 
     }
 
-    f2DHistScint->SetTitle((TString)"SCINTILLATION - " + std::to_string((int)fPlotter_Scint.at(0).hist1D->GetEntries()));
+    f2DHistScint->SetTitle((TString)"Run " + std::to_string(fRunNum) + " SCINTILLATION - " + std::to_string((int)fPlotter_Scint.at(0).hist1D->GetEntries()));
     for (int i = 0; i < fPlotter_Scint.size(); i++) {
       f2DHistScint->SetBinContent(fPlotter_Scint.at(i).info.row, fPlotter_Scint.at(i).info.col, (int)fPlotter_Scint.at(i).hist1D->GetMean());
 
@@ -637,7 +648,7 @@ void TBplotengine::Update() {
 
 
 
-  gSystem->Sleep(5000);
+  gSystem->Sleep(1000);
 
   if (fLive)
     if (fCalcInfo == TBplotengine::CalcInfo::kAvgTimeStruc)

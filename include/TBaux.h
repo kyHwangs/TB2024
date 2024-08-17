@@ -70,7 +70,10 @@ public:
   }
 
   void SetRange(const YAML::Node tConfigNode);
-  void SetMethod(std::string fMethod_) { fMethod = fMethod_; }
+  void SetMethod(std::string fMethod_) { 
+    fMethod = fMethod_; 
+    if (fMethod == "Overlay" || fMethod == "Avg") fMethod = "IntADC";
+  }
   void SetApp(TApplication* fApp_) { fApp = fApp_; }
 
   bool IsPassing(TBevt<TBwaveform> anEvent);
@@ -98,6 +101,7 @@ private:
 
   TH1D* fPS;
   TH1D* fMC;
+  TH1D* fTC;
   TH1D* fCC1;
   TH1D* fCC2;
 

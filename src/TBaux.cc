@@ -29,13 +29,14 @@ void TBaux::init() {
   fCIDtoPlot.push_back(fUtility.GetCID("DWC2D"));
   fCIDtoPlot.push_back(fUtility.GetCID("PS"));
   fCIDtoPlot.push_back(fUtility.GetCID("MC"));
+  fCIDtoPlot.push_back(fUtility.GetCID("TC"));
 
   fPScut = fNodeAux["PS"][fMethod].as<double>();
   fMCcut = fNodeAux["MC"][fMethod].as<double>();
   fCC1cut = fNodeAux["CC1"][fMethod].as<double>();
   fCC2cut = fNodeAux["CC2"][fMethod].as<double>();
 
-  fDWC1 = new TH2D("DWC1", "DWC 1 position;X [mm];Y [mm]", 200, -50., 50., 200, -50., 50.);
+  fDWC1 = new TH2D("DWC1", (TString)"Run " + std::to_string(fRunNum) + " DWC 1 position;X [mm];Y [mm]", 200, -50., 50., 200, -50., 50.);
   fDWC1->SetStats(0);
 
   fDWC2 = new TH2D("DWC2", "DWC 2 position;X [mm];Y [mm]", 200, -50., 50., 200, -50., 50.);
@@ -50,15 +51,17 @@ void TBaux::init() {
   if (fMethod == "IntADC") {
     fPS = new TH1D("PS_AUX", ";IntADC;nEvents", 440, -30000., 300000.);
     fMC = new TH1D("MC_AUX", ";IntADC;nEvents", 440, -30000., 300000.);
-    fCC1 = new TH1D("CC1", ";IntADC;nEvents", 440, -30000., 300000.);
-    fCC2 = new TH1D("CC2", ";IntADC;nEvents", 440, -30000., 300000.);
+    fTC = new TH1D("TC_AUX", ";IntADC;nEvents", 440, -30000., 300000.);
+    fCC1 = new TH1D("CC1_AUX", ";IntADC;nEvents", 440, -30000., 300000.);
+    fCC2 = new TH1D("CC2_AUX", ";IntADC;nEvents", 440, -30000., 300000.);
     fFrameTop = new TH1D("TopFrame", ";IntADC;nEvents", 440, -30000., 300000.);
     fFrameBot = new TH1D("BotFrame", ";IntADC;nEvents", 440, -30000., 300000.);
   } else if (fMethod == "PeakADC") {
     fPS = new TH1D("PS_AUX", ";PeakADC;nEvents", 288, -512., 4096.);
     fMC = new TH1D("MC_AUX", ";PeakADC;nEvents", 288, -512., 4096.);
-    fCC1 = new TH1D("CC1", ";PeakADC;nEvents", 288, -512., 4096.);
-    fCC2 = new TH1D("CC2", ";PeakADC;nEvents", 288, -512., 4096.);
+    fTC = new TH1D("TC_AUX", ";IntADC;nEvents", 288, -512., 4096.);
+    fCC1 = new TH1D("CC1_AUX", ";PeakADC;nEvents", 288, -512., 4096.);
+    fCC2 = new TH1D("CC2_AUX", ";PeakADC;nEvents", 288, -512., 4096.);
     fFrameTop = new TH1D("TopFrame", ";PeakADC;nEvents", 288, -512., 4096.);
     fFrameBot = new TH1D("BotFrame", ";PeakADC;nEvents", 288, -512., 4096.);
   }
@@ -69,6 +72,9 @@ void TBaux::init() {
   fMC->SetLineColor(2);
   fMC->SetLineWidth(2);
 
+  fTC->SetLineColor(3);
+  fTC->SetLineWidth(2);
+
   fCC1->SetLineColor(802);
   fCC1->SetLineWidth(2);
 
@@ -78,20 +84,22 @@ void TBaux::init() {
   fFrameTop->SetStats(0);
   fFrameBot->SetStats(0);
 
-  fCanvas = new TCanvas("fCanvas_Aux", "fCanvas_Aux", 2700, 1400);
-  fCanvas->Divide(3, 2);
+  fCanvas = new TCanvas("fCanvas_Aux", "fCanvas_Aux", 3300, 1500);
+  fCanvas->Divide(4, 2);
 
   fCanvas->cd(1)->SetRightMargin(0.13);
   fCanvas->cd(2)->SetRightMargin(0.13);
-  fCanvas->cd(3)->SetRightMargin(0.13);
   fCanvas->cd(5)->SetRightMargin(0.13);
+  fCanvas->cd(6)->SetRightMargin(0.13);
 
 }
 
 void TBaux::SetRange(const YAML::Node tConfigNode) {
 
+  fRangeMap.insert(std::make_pair("DWC2R", tConfigNode["DWC2R"].as<std::vector<int>>()));
   fRangeMap.insert(std::make_pair("PS", tConfigNode["PS"].as<std::vector<int>>()));
   fRangeMap.insert(std::make_pair("MC", tConfigNode["MC"].as<std::vector<int>>()));
+  fRangeMap.insert(std::make_pair("TC", tConfigNode["TC"].as<std::vector<int>>()));
   fRangeMap.insert(std::make_pair("CC1", tConfigNode["CC1"].as<std::vector<int>>()));
   fRangeMap.insert(std::make_pair("CC2", tConfigNode["CC2"].as<std::vector<int>>()));
 }
@@ -142,7 +150,7 @@ std::vector<float> TBaux::GetPosition(std::vector<std::vector<float>> wave) {
   // 1R 1L 1U 1D 2R 2L 2U 2D
   std::vector<float> tDWCtime = {};
   for (int i = 0; i < 8; i++)
-    tDWCtime.push_back(800. * (GetLeadingEdgeBin(wave.at(i), 0.1) / 1000.));
+    tDWCtime.push_back(800. * (GetLeadingEdgeBin(wave.at(i), 0.4) / 1000.));
 
 
   // // DWC1 horizontal slope, DWC1 horizontal offset, DWC1 vertical slope, DWC1 vertical offset
@@ -179,6 +187,7 @@ void TBaux::Fill(TBevt<TBwaveform> anEvent) {
 
   fPS->Fill(GetValue(anEvent.GetData(fUtility.GetCID("PS")).waveform(), fRangeMap.at("PS").at(0), fRangeMap.at("PS").at(1)));
   fMC->Fill(GetValue(anEvent.GetData(fUtility.GetCID("MC")).waveform(), fRangeMap.at("MC").at(0), fRangeMap.at("MC").at(1)));
+  fTC->Fill(GetValue(anEvent.GetData(fUtility.GetCID("TC")).waveform(), fRangeMap.at("TC").at(0), fRangeMap.at("TC").at(1)));
   fCC1->Fill(GetValue(anEvent.GetData(fUtility.GetCID("CC1")).waveform(), fRangeMap.at("CC1").at(0), fRangeMap.at("CC1").at(1)));
   fCC2->Fill(GetValue(anEvent.GetData(fUtility.GetCID("CC2")).waveform(), fRangeMap.at("CC2").at(0), fRangeMap.at("CC2").at(1)));
 }
@@ -186,18 +195,65 @@ void TBaux::Fill(TBevt<TBwaveform> anEvent) {
 bool TBaux::IsPassing(TBevt<TBwaveform> anEvent) {
 
   // !! NEED UPDATE
+  // return true;
+
+  // double tPS_value = GetValue(anEvent.GetData(fUtility.GetCID("PS")).waveform(), fRangeMap.at("PS").at(0), fRangeMap.at("PS").at(1));
+  // double tMC_value = GetValue(anEvent.GetData(fUtility.GetCID("MC")).waveform(), fRangeMap.at("MC").at(0), fRangeMap.at("MC").at(1));
+
+  // if (tPS_value < fPScut)
+  //   return false;
+
+  // if (tMC_value > fMCcut)
+  //   return false;
+
+  // return true;
+
+  // std::vector<std::vector<float>> tDWCwaves;
+  // tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC1R")).pedcorrectedWaveform());
+  // tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC1L")).pedcorrectedWaveform());
+  // tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC1U")).pedcorrectedWaveform());
+  // tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC1D")).pedcorrectedWaveform());
+  // tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC2R")).pedcorrectedWaveform());
+  // tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC2L")).pedcorrectedWaveform());
+  // tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC2U")).pedcorrectedWaveform());
+  // tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC2D")).pedcorrectedWaveform());
+
+  // auto posVec = GetPosition(tDWCwaves);
+  // std::vector<float> posCen = {};
+  // for (int i = 0; i < posVec.size(); i++)
+  //   posCen.push_back(posVec.at(i) - fDWCCenter.at(i));
+
+  // if (posCen.at(1) > 0)
+  //   return true;
+
+  // return false;
+
+  // double tDWC2R_value = GetValue(anEvent.GetData(fUtility.GetCID("DWC2R")).waveform(), fRangeMap.at("DWC2R").at(0), fRangeMap.at("DWC2R").at(1));
+  // if (tDWC2R_value < 120.) return false;
+  // return true;
+
+
+
+  std::vector<std::vector<float>> tDWCwaves;
+  tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC1R")).pedcorrectedWaveform());
+  tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC1L")).pedcorrectedWaveform());
+  tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC1U")).pedcorrectedWaveform());
+  tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC1D")).pedcorrectedWaveform());
+  tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC2R")).pedcorrectedWaveform());
+  tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC2L")).pedcorrectedWaveform());
+  tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC2U")).pedcorrectedWaveform());
+  tDWCwaves.push_back(anEvent.GetData(fUtility.GetCID("DWC2D")).pedcorrectedWaveform());
+
+  auto posVec = GetPosition(tDWCwaves);
+
+  double xCenTmp = 20.;
+  double yCenTmp = -20.;
+
+  double distance_DWC1 = std::sqrt((posVec.at(0) - xCenTmp) * (posVec.at(0) - xCenTmp) + (posVec.at(1) - yCenTmp) * (posVec.at(1) - yCenTmp));
+  if (distance_DWC1 > 10.) return false;
   return true;
 
-  double tPS_value = GetValue(anEvent.GetData(fUtility.GetCID("PS")).waveform(), fRangeMap.at("PS").at(0), fRangeMap.at("PS").at(1));
-  double tMC_value = GetValue(anEvent.GetData(fUtility.GetCID("MC")).waveform(), fRangeMap.at("MC").at(0), fRangeMap.at("MC").at(1));
 
-  if (tPS_value < fPScut)
-    return false;
-
-  if (tMC_value > fMCcut)
-    return false;
-
-  return true;
 }
 
 void TBaux::Draw() {
@@ -205,20 +261,27 @@ void TBaux::Draw() {
   fCanvas->cd(1);
   fDWC1->Draw("colz");
 
-  fCanvas->cd(4);
+  fCanvas->cd(5);
   fDWC2->Draw("colz");
 
   fCanvas->cd(2);
   fDWCXaxis->Draw("colz");
 
-  fCanvas->cd(5);
+  fCanvas->cd(6);
   fDWCYaxis->Draw("colz");
 
   fCanvas->cd(3);
-  fPS->Draw("colz");
+  fPS->Draw("Hist");
 
-  fCanvas->cd(6);
-  fMC->Draw("colz");
+  fCanvas->cd(4);
+  fMC->Draw("Hist");
+
+  fCanvas->cd(7);
+  fTC->Draw("Hist");
+
+  fCanvas->cd(8);
+  fCC1->Draw("Hist");
+  fCC2->Draw("Hist sames");
 
   // gSystem->ProcessEvents();
   gSystem->Sleep(1000);
@@ -226,8 +289,17 @@ void TBaux::Draw() {
 
 void TBaux::SetMaximum() {
 
-  if (fPS->GetMaximum() > fMC->GetMaximum()) fFrameTop->GetYaxis()->SetRangeUser(0., fPS->GetMaximum() * 1.2);
-  else                                       fFrameTop->GetYaxis()->SetRangeUser(0., fMC->GetMaximum() * 1.2);
+  // float max = -999;
+
+  // if (fPS->GetMaximum() > max) max = fPS->GetMaximum();
+  // if (fMC->GetMaximum() > max) max = fMC->GetMaximum();
+  // if (fTC->GetMaximum() > max) max = fTC->GetMaximum();
+
+  // fFrameTop->GetYaxis()->SetRangeUser(0., max * 1.2);
+
+
+  // if (fPS->GetMaximum() > fMC->GetMaximum()) fFrameTop->GetYaxis()->SetRangeUser(0., fPS->GetMaximum() * 1.2);
+  // else                                       fFrameTop->GetYaxis()->SetRangeUser(0., fMC->GetMaximum() * 1.2);
 
   if (fCC1->GetMaximum() > fCC2->GetMaximum()) fFrameBot->GetYaxis()->SetRangeUser(0., fCC1->GetMaximum() * 1.2);
   else                                         fFrameBot->GetYaxis()->SetRangeUser(0., fCC2->GetMaximum() * 1.2);
@@ -240,45 +312,33 @@ void TBaux::Update() {
   fCanvas->cd(1);
   fDWC1->Draw("colz");
 
-  fCanvas->cd(4);
+  fCanvas->cd(5);
   fDWC2->Draw("colz");
 
   fCanvas->cd(2);
   fDWCXaxis->Draw("colz");
 
-  fCanvas->cd(5);
+  fCanvas->cd(6);
   fDWCYaxis->Draw("colz");
 
   fCanvas->cd(3);
-  fFrameTop->Draw("");
+  fPS->Draw("Hist");
 
-  fCanvas->cd(3);
-  fPS->Draw("Hist sames");
-  if (fIsFirst) {
-    fCanvas->Update();
-    TPaveStats* stat = (TPaveStats*)fPS->FindObject("stats");
-    stat->SetTextColor(fPS->GetLineColor());
-    stat->SetY2NDC(1.);
-    stat->SetY1NDC(.8);
-    stat->SaveStyle();
-  }
+  fCanvas->cd(4);
+  fMC->Draw("Hist");
 
-  fCanvas->cd(3);
-  fMC->Draw("Hist sames");
-  if (fIsFirst) {
-    fCanvas->Update();
-    TPaveStats* stat = (TPaveStats*)fMC->FindObject("stats");
-    stat->SetTextColor(fMC->GetLineColor());
-    stat->SetY2NDC(.8);
-    stat->SetY1NDC(.6);
-    stat->SaveStyle();
-  }
+  fCanvas->cd(7);
+  fTC->Draw("Hist");
+
+  fCanvas->cd(8);
+  fCC1->Draw("Hist");
+  fCC2->Draw("Hist sames");
 
 
-  fCanvas->cd(6);
+  fCanvas->cd(8);
   fFrameBot->Draw("");
 
-  fCanvas->cd(6);
+  fCanvas->cd(8);
   fCC1->Draw("Hist sames");
   if (fIsFirst) {
     fCanvas->Update();
@@ -289,7 +349,7 @@ void TBaux::Update() {
     stat->SaveStyle();
   }
 
-  fCanvas->cd(6);
+  fCanvas->cd(8);
   fCC2->Draw("Hist sames");
   if (fIsFirst) {
     fCanvas->Update();
