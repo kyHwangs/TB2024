@@ -70,6 +70,7 @@ public:
   void init_2D();
   void init_MCPPMT();
   void init_SiPM();
+  void init_Generic();
   void PrintInfo();
 
   void Fill(TBevt<TBwaveform> anEvent);

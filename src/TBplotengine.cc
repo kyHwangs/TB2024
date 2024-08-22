@@ -233,6 +233,111 @@ void TBplotengine::init_2D() {
 
   if (fModule == "MCPPMT") init_MCPPMT();
   if (fModule == "SiPM")   init_SiPM();
+  if (fModule == "Generic") init_Generic();
+
+}
+
+void TBplotengine::init_Generic() {
+
+  std::vector<std::string> plotVec = {
+
+    "M1-T1",
+    "M1-T2",
+    "M1-T3",
+    "M1-T4",
+
+    "M2-T1",
+    "M2-T2",
+    "M2-T3",
+    "M2-T4",
+
+    "M3-T1",
+    "M3-T2",
+    "M3-T3",
+    "M3-T4",
+
+    "M4-T1",
+    "M4-T2",
+    "M4-T3",
+    "M4-T4",
+
+    "M5-T1",
+    "M5-T2",
+    "M5-T3",
+    "M5-T4",
+
+    "M6-T1",
+    "M6-T2",
+    "M6-T3",
+    "M6-T4",
+
+    "M7-T1",
+    "M7-T2",
+    "M7-T3",
+    "M7-T4",
+
+    "M8-T1",
+    "M8-T2",
+    "M8-T3",
+    "M8-T4",
+
+    "M9-T1",
+    "M9-T2",
+    "M9-T3",
+    "M9-T4"
+  };
+
+
+  for (int i = 0; i < plotVec.size(); i++) {
+
+    std::string aCName = plotVec.at(i) + "-C";
+    TBcid aCCID = fUtility.GetCID(aCName);
+    TButility::mod_info aCInfo = fUtility.GetInfo(aCName);
+
+    fCIDtoPlot_Ceren.push_back(aCCID);
+
+    std::vector<int> intervalC = fConfig[aCName].as<std::vector<int>>();
+    fPlotter_Ceren.push_back(TBplotengine::PlotInfo(aCCID, aCName, aCInfo, intervalC.at(0), intervalC.at(1)));
+
+    if (fCalcInfo == TBplotengine::CalcInfo::kIntADC)
+      fPlotter_Ceren.at(i).SetPlot(new TH1D((TString)(aCName), ";IntADC;nEvents", 440, -30000., 300000.));
+
+    if (fCalcInfo == TBplotengine::CalcInfo::kPeakADC)
+      fPlotter_Ceren.at(i).SetPlot(new TH1D((TString)(aCName), ";PeakADC;nEvents", 288, -512., 4096.));
+
+
+    std::string aSName = plotVec.at(i) + "-S";
+    TBcid aSCID = fUtility.GetCID(aSName);
+    TButility::mod_info aSInfo = fUtility.GetInfo(aSName);
+
+    fCIDtoPlot_Scint.push_back(aSCID);
+
+    std::vector<int> intervalS = fConfig[aSName].as<std::vector<int>>();
+    fPlotter_Scint.push_back(TBplotengine::PlotInfo(aSCID, aSName, aSInfo, intervalS.at(0), intervalS.at(1)));
+
+    if (fCalcInfo == TBplotengine::CalcInfo::kIntADC)
+      fPlotter_Scint.at(i).SetPlot(new TH1D((TString)(aSName), ";IntADC;nEvents", 440, -30000., 300000.));
+
+    if (fCalcInfo == TBplotengine::CalcInfo::kPeakADC)
+      fPlotter_Scint.at(i).SetPlot(new TH1D((TString)(aSName), ";PeakADC;nEvents", 288, -512., 4096.));
+
+  }
+
+
+  f2DHistCeren = new TH2D("CERENKOV", "CERENKOV;;", 6, 0.5, 6.5, 6, 0.5, 6.5);
+  f2DHistCeren->SetStats(0);
+
+  f2DHistScint = new TH2D("SCINTILLATION", "SCINTILLATION;;", 6, 0.5, 6.5, 6, 0.5, 6.5);
+  f2DHistScint->SetStats(0);
+
+  for (int i = 1; i <= 6; i++) {
+    f2DHistCeren->GetXaxis()->SetBinLabel(i, std::to_string(i).c_str());
+    f2DHistCeren->GetYaxis()->SetBinLabel(i, std::to_string(i).c_str());
+    f2DHistScint->GetXaxis()->SetBinLabel(i, std::to_string(i).c_str());
+    f2DHistScint->GetYaxis()->SetBinLabel(i, std::to_string(i).c_str());
+  }
+
+  Draw();
 }
 
 void TBplotengine::init_MCPPMT() {
@@ -549,6 +654,8 @@ void TBplotengine::Update() {
       //           << " " << fPlotter_Ceren.at(i).name
       //           << " " << fPlotter_Ceren.at(i).cid.mid()
       //           << " " << fPlotter_Ceren.at(i).cid.channel()
+      //           << " " << fPlotter_Ceren.at(i).info.row
+      //           << " " << fPlotter_Ceren.at(i).info.col
       //           << " " << fPlotter_Ceren.at(i).hist1D->GetMean() << std::endl;
 
     }
@@ -561,6 +668,8 @@ void TBplotengine::Update() {
       //           << " " << fPlotter_Scint.at(i).name
       //           << " " << fPlotter_Scint.at(i).cid.mid()
       //           << " " << fPlotter_Scint.at(i).cid.channel()
+      //           << " " << fPlotter_Ceren.at(i).info.row
+      //           << " " << fPlotter_Ceren.at(i).info.col
       //           << " " << fPlotter_Scint.at(i).hist1D->GetMean() << std::endl;
 
     }
